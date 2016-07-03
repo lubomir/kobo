@@ -4,7 +4,6 @@
 # Some code comes from koji: https://fedorahosted.org/koji/
 
 
-from itertools import izip
 import datetime
 import time
 try:
@@ -12,8 +11,8 @@ try:
 except ImportError:
     import email.Utils as email_utils
 
-import koji
 import rpm
+import kobo.rpmlib_koji
 
 
 __all__ = (
@@ -47,7 +46,6 @@ FILE_DIGEST_ALGO_MAP = {
 }
 
 
-
 def get_rpm_header(file_name, ts=None):
     """Read rpm header.
 
@@ -67,9 +65,9 @@ def get_rpm_header(file_name, ts=None):
             # which may cause race-conditions when running in threads.
             # NOTE: RPM is *not* tread-safe, but this *usually* works in threads.
             ts.setKeyring(rpm.keyring())
-        ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES|rpm._RPMVSF_NODIGESTS)
+        ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES | rpm._RPMVSF_NODIGESTS)
 
-    if type(file_name) in (str, unicode):
+    if type(file_name) in (str, str):
         fo = open(file_name, "r")
     else:
         fo = file_name
@@ -115,7 +113,7 @@ def get_header_field(hdr, name):
         # HACK: workaround for https://bugzilla.redhat.com/show_bug.cgi?id=991329
         if result is None:
             result = []
-        elif isinstance(result, (int, long)):
+        elif isinstance(result, int):
             result = [result]
     return result
 
@@ -190,7 +188,7 @@ def parse_nvr(nvre):
         except ValueError:
             raise ValueError("Invalid epoch '%s' in '%s'" % (epoch, nvr))
 
-    result = dict(zip(["name", "version", "release"], nvr_parts))
+    result = dict(list(zip(["name", "version", "release"], nvr_parts)))
     result["epoch"] = epoch
     return result
 
@@ -208,7 +206,7 @@ def parse_nvra(nvra):
         nvra = nvra.split("/")[-1]
 
     epoch = ""
-    for i in xrange(2):
+    for i in range(2):
         # run this twice to parse N-V-R.A.rpm:E and N-V-R.A:E.rpm
         if nvra.endswith(".rpm"):
             # strip .rpm suffix
@@ -317,7 +315,7 @@ def make_nvrea_list(nvrea_dict):
     @return: [name, version, release, epoch, arch]
     @rtype: str
     """
-    return [ nvrea_dict[i] for i in ("name", "version", "release", "epoch", "arch") ]
+    return [nvrea_dict[i] for i in ("name", "version", "release", "epoch", "arch")]
 
 
 def compare_nvr(nvr_dict1, nvr_dict2, ignore_epoch=False):
@@ -354,6 +352,7 @@ def compare_nvr(nvr_dict1, nvr_dict2, ignore_epoch=False):
 
     return rpm.labelCompare((str(nvr1["epoch"]), str(nvr1["version"]), str(nvr1["release"])), (str(nvr2["epoch"]), str(nvr2["version"]), str(nvr2["release"])))
 
+
 def get_keys_from_header(hdr):
     """Extract signing key id from a rpm header.
 
@@ -369,12 +368,12 @@ def get_keys_from_header(hdr):
     for field in head_header_tags:
         sigkey = get_header_field(hdr, field)
         if sigkey:
-            head_keys.append(koji.get_sigpacket_key_id(sigkey).upper())
+            head_keys.append(kobo.rpmlib_koji.get_sigpacket_key_id(sigkey).upper())
 
     for field in body_header_tags:
         sigkey = get_header_field(hdr, field)
         if sigkey:
-            key_id = koji.get_sigpacket_key_id(sigkey).upper()
+            key_id = kobo.rpmlib_koji.get_sigpacket_key_id(sigkey).upper()
             if key_id in head_keys:
                 result.append(key_id)
             else:
@@ -486,7 +485,7 @@ def get_changelogs_from_header(hdr, max_records=None, newer_than=None):
         newer_than = int(newer_than.strftime("%s"))
 
     result = []
-    for num, (ch_name, ch_time, ch_text) in enumerate(izip(names, times, texts)):
+    for num, (ch_name, ch_time, ch_text) in enumerate(zip(names, times, texts)):
         if max_records is not None and num >= max_records:
             break
         if newer_than is not None and ch_time < newer_than:
