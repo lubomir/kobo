@@ -381,7 +381,7 @@ class CookieTransport(xmlrpclib.Transport):
             if rc == -1:
                 errcode = 401
                 raise xmlrpclib.ProtocolError(host + handler, errcode, errmsg, headers)
-        except kerberos.GSSError, ex:
+        except kerberos.GSSError as ex:
             errcode = 401
             errmsg += ": %s/%s" % (ex[0][0], ex[1][0])
             raise xmlrpclib.ProtocolError(host + handler, errcode, errmsg, headers)
@@ -577,7 +577,7 @@ def retry_request_decorator(transport_class):
                     return result
                 except KeyboardInterrupt:
                     raise
-                except (socket.error, socket.herror, socket.gaierror, socket.timeout), ex:
+                except (socket.error, socket.herror, socket.gaierror, socket.timeout) as ex:
                     if i >= self.retry_count:
                         raise
                     retries_left = self.retry_count - i
@@ -619,7 +619,7 @@ def encode_xmlrpc_chunks_iterator(file_obj):
     yield (str(chunk_start), -1, checksum.hexdigest().lower(), "")
 
 
-def decode_xmlrpc_chunk(chunk_start, chunk_len, chunk_checksum, encoded_chunk, write_to=None, mode=0644):
+def decode_xmlrpc_chunk(chunk_start, chunk_len, chunk_checksum, encoded_chunk, write_to=None, mode=0o644):
     """
     Decode a data chunk and optionally write it to a file.
 
@@ -659,8 +659,8 @@ def decode_xmlrpc_chunk(chunk_start, chunk_len, chunk_checksum, encoded_chunk, w
     target_dir = os.path.dirname(write_to)
     if not os.path.isdir(target_dir):
         try:
-            os.makedirs(target_dir, mode=0755)
-        except OSError, ex:
+            os.makedirs(target_dir, mode=0o755)
+        except OSError as ex:
             if ex.errno != 17:
                 raise
 

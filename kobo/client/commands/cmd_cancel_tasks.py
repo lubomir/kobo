@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 
 import sys
 
@@ -30,10 +32,10 @@ class Cancel_Tasks(ClientCommand):
             try:
                 result = self.hub.client.cancel_task(task_id)
                 if result and isinstance(result, basestring):
-                    print result
-            except Exception, ex:
+                    print(result)
+            except Exception as ex:
                 failed = True
-                print ex
+                print(ex)
 
         if failed:
             sys.exit(1)

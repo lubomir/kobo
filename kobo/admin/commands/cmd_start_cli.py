@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 
 import os
 
@@ -23,7 +25,7 @@ class Start_CLI(kobo.cli.Command):
 
         try:
             kobo.admin.copy_helper(name, directory, "cli")
-        except kobo.admin.TemplateError, ex:
+        except kobo.admin.TemplateError as ex:
             self.parser.error(ex)
 
-        print "Use `kobo-admin start-cli-command` to add additional commands."
+        print("Use `kobo-admin start-cli-command` to add additional commands.")

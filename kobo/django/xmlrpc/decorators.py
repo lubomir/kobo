@@ -101,7 +101,7 @@ def log_traceback(function, logdir):
     def _new_function(request, *args, **kwargs):
         try:
             result = function(request, *args, **kwargs)
-        except Exception, ex:
+        except Exception as ex:
             # logdir must be absolute path
             if os.path.abspath(logdir) != logdir:
                 raise
@@ -118,7 +118,7 @@ def log_traceback(function, logdir):
 
             # create a file with 0600 perms (log can contain sensitive information like passwords)
             file_path = os.path.join(logdir, file_name)
-            fd = os.open(file_path, os.O_CREAT | os.O_WRONLY, 0600)
+            fd = os.open(file_path, os.O_CREAT | os.O_WRONLY, 0o600)
             os.write(fd, Traceback().get_traceback())
             os.close(fd)
             raise
