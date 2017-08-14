@@ -220,13 +220,15 @@ def read_from_file(filename, lines=None, re_filter=None):
     return result
 
 
-def save_to_file(filename, text, append=False, mode=0o644):
+def save_to_file(filename, text, append=False, mode=0o644, encoding='utf-8'):
     """Save text to a file."""
     if append and os.path.exists(filename):
         fd = os.open(filename, os.O_RDWR | os.O_APPEND, mode)
     else:
         fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode)
-    os.write(fd, six.b(six.u(text)))
+    if isinstance(text, six.text_type):
+        text = text.encode(encoding)
+    os.write(fd, text)
     os.close(fd)
 
 
