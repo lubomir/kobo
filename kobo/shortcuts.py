@@ -381,13 +381,13 @@ def compute_file_checksums(filename, checksum_types):
         except AttributeError:
             raise ValueError("Checksum is not supported in hashlib: %s" % checksum_type)
 
-    fo = open(filename, "r")
+    fo = open(filename, "rb")
     while True:
         chunk = fo.read(1024**2)
         if not chunk:
             break
         for checksum_type in checksum_types:
-            checksums[checksum_type].update(six.b(chunk))
+            checksums[checksum_type].update(chunk)
     fo.close()
 
     result = {}
