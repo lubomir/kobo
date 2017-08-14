@@ -12,6 +12,7 @@ except ImportError:
     import email.Utils as email_utils
 
 import rpm
+import six
 import kobo.rpmlib_koji
 
 
@@ -67,7 +68,7 @@ def get_rpm_header(file_name, ts=None):
             ts.setKeyring(rpm.keyring())
         ts.setVSFlags(rpm._RPMVSF_NOSIGNATURES | rpm._RPMVSF_NODIGESTS)
 
-    if type(file_name) in (str, str):
+    if isinstance(file_name, six.string_types):
         fo = open(file_name, "r")
     else:
         fo = file_name
